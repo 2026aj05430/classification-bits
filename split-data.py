@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Load data
-df = pd.read_csv('your_dataset.csv')
+df = pd.read_csv('dataset.csv')
 
 # Shuffle the dataset randomly
 df_shuffled = df.sample(frac=1, random_state=42).reset_index(drop=True)
@@ -14,5 +14,5 @@ train_df = df_shuffled.iloc[:split_idx]
 test_df = df_shuffled.iloc[split_idx:]
 
 # Save to CSV files
-train_df.to_csv('train.csv', index=False)
-test_df.to_csv('test.csv', index=False)
+train_df.to_csv('train_data.csv', index=False)
+test_df.to_csv('test_data.csv', index=False)
