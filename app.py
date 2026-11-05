@@ -116,9 +116,9 @@ if uploaded_file is not None:
                 st.subheader(f"📈 Evaluation Metrics: {selected_model_name}")
                 
                 acc = accuracy_score(y_test, y_pred)
-                prec = precision_score(y_test, y_pred, zero_division=0)
-                rec = recall_score(y_test, y_pred, zero_division=0)
-                f1 = f1_score(y_test, y_pred, zero_division=0)
+                prec = precision_score(y_test, y_pred, average='weighted', zero_division=0)
+                rec = recall_score(y_test, y_pred, average='weighted', zero_division=0)
+                f1 = f1_score(y_test, y_pred, average='weighted', zero_division=0)
                 mcc = matthews_corrcoef(y_test, y_pred)
                 auc_score = roc_auc_score(y_test, y_prob, multi_class='ovr', average='weighted')
 
