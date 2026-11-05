@@ -3,6 +3,8 @@ import pandas as pd
 import numpy as np
 import joblib
 import os
+import matplotlib
+matplotlib.use('Agg') # Forces matplotlib to run in headless/non-GUI mode
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import (
