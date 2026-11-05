@@ -3,125 +3,156 @@ import pandas as pd
 import numpy as np
 import joblib
 import os
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import (
+    accuracy_score, roc_auc_score, precision_score, 
+    recall_score, f1_score, matthews_corrcoef, 
+    classification_report, confusion_matrix
+)
 
-# --- PAGE CONFIGURATION ---
+# Page configuration
 st.set_page_config(
-    page_title="Machine Learning Model Demonstrator",
-    page_icon="🤖",
-    layout="wide"
+    page_title="Classification Models Dashboard",
+    page_icon="📊",
+    layout="centered"
 )
 
-st.title("🤖 Multi-Model Classification Demonstrator")
-st.write("Select a machine learning model, input your feature values from the test set, and instantly see predictions and probabilities!")
+st.title("📊 Classification Model Evaluation Dashboard")
+st.write("Upload your test dataset, select a trained model, and evaluate performance instantly.")
 
-# --- LOAD DATA TO EXTRACT COLUMN NAMES & DEFAULTS ---
-@st.cache_data
-def load_data():
-    # Load test data to get sample rows and feature names
-    test_df = pd.read_csv('test_data.csv', sep=';', encoding='utf-8')
-    test_df.columns = test_df.columns.str.strip()
-    target_col = test_df.columns[-1]
-    feature_cols = test_df.columns[:-1].tolist()
-    return test_df, feature_cols, target_col
+# --- 1. MODEL SELECTION DROPDOWN ---
+st.sidebar.header("Configuration")
+model_options = {
+    "Logistic Regression": {
+        "model_path": "models/logistic_regression_model.pkl",
+        "scaler_path": "models/scaler.pkl",
+        "needs_scaling": True
+    },
+    "Support Vector Machine (SVM)": {
+        "model_path": "models/svm_model.pkl",
+        "scaler_path": "models/svm_scaler.pkl",
+        "needs_scaling": True
+    },
+    "K-Nearest Neighbors (KNN)": {
+        "model_path": "models/knn_model.pkl",
+        "scaler_path": "models/knn_scaler.pkl",
+        "needs_scaling": True
+    },
+    "Decision Tree": {
+        "model_path": "models/decision_tree_model.pkl",
+        "scaler_path": None,
+        "needs_scaling": False
+    },
+    "Gaussian Naive Bayes": {
+        "model_path": "models/gaussian_nb_model.pkl",
+        "scaler_path": None,
+        "needs_scaling": False
+    }
+}
 
-try:
-    test_df, feature_cols, target_col = load_data()
-except Exception as e:
-    st.error(f"Error loading dataset: {e}. Make sure 'test_data.csv' is in the directory.")
-    st.stop()
-
-# --- SIDEBAR: MODEL SELECTION ---
-st.sidebar.header("Model Selection")
-model_choice = st.sidebar.selectbox(
-    "Choose a Classifier:",
-    (
-        "Logistic Regression",
-        "Decision Tree",
-        "K-Nearest Neighbors (KNN)",
-        "Gaussian Naive Bayes",
-        "Support Vector Machine (SVM)"
-    )
+selected_model_name = st.sidebar.selectbox(
+    "Select Classification Model", 
+    list(model_options.keys())
 )
 
-# --- LOAD SELECTED MODEL & SCALER ---
+# --- 2. DATASET UPLOAD OPTION (CSV) ---
+st.subheader("📁 Upload Test Dataset")
+uploaded_file = st.file_uploader(
+    "Upload your test CSV file (e.g., test_data.csv)", 
+    type=["csv"]
+)
+
 @st.cache_resource
-def load_model_and_scaler(choice):
-    model, scaler = None, None
-    try:
-        if choice == "Logistic Regression":
-            model = joblib.load('logistic_regression_model.pkl')
-            scaler = joblib.load('scaler.pkl')
-        elif choice == "Decision Tree":
-            model = joblib.load('decision_tree_model.pkl')
-        elif choice == "K-Nearest Neighbors (KNN)":
-            model = joblib.load('knn_model.pkl')
-            scaler = joblib.load('knn_scaler.pkl')
-        elif choice == "Gaussian Naive Bayes":
-            model = joblib.load('gaussian_nb_model.pkl')
-        elif choice == "Support Vector Machine (SVM)":
-            model = joblib.load('svm_model.pkl')
-            scaler = joblib.load('svm_scaler.pkl')
-    except Exception as e:
-        st.sidebar.error(f"Could not load files for {choice}. Did you run the training script?")
+def load_artifacts(model_path, scaler_path, needs_scaling):
+    """Helper function to load model and scaler safely."""
+    model = joblib.load(model_path) if os.path.exists(model_path) else None
+    scaler = joblib.load(scaler_path) if needs_scaling and os.path.exists(scaler_path) else None
     return model, scaler
 
-model, scaler = load_model_and_scaler(model_choice)
-
-# --- MAIN INTERFACE: INPUT FEATURES ---
-st.subheader(f"Input Features for: `{model_choice}` (using `test_data.csv`)")
-st.write("Adjust the values below to test the model.")
-
-# Create input widgets dynamically for each feature column
-input_data = {}
-
-# Use columns for a cleaner layout (3 widgets per row)
-cols = st.columns(3)
-for i, col_name in enumerate(feature_cols):
-    with cols[i % 3]:
-        # Get default values from the first row of test data
-        default_val = float(test_df[col_name].iloc[0])
-        min_val = float(test_df[col_name].min())
-        max_val = float(test_df[col_name].max())
-        step_val = (max_val - min_val) / 100 if max_val != min_val else 0.1
+if uploaded_file is not None:
+    try:
+        test_df = pd.read_csv(uploaded_file)
+        st.success(f"Successfully uploaded! Dataset shape: {test_df.shape}")
         
-        input_data[col_name] = st.number_input(
-            label=col_name,
-            value=default_val,
-            min_value=min_val - abs(min_val)*0.5,
-            max_value=max_val + abs(max_val)*0.5,
-            step=step_val if step_val > 0 else 1.0
-        )
-
-# Convert inputs to DataFrame
-input_df = pd.DataFrame([input_data])
-
-# --- PREDICTION BUTTON ---
-st.markdown("---")
-if st.button("🔮 Run Prediction", type="primary", use_container_width=True):
-    if model is None:
-        st.error(f"The model for **{model_choice}** is not loaded. Please ensure the `.pkl` file exists.")
-    else:
-        # Preprocess if the model requires a scaler
-        if scaler is not None:
-            processed_input = scaler.transform(input_df)
+        with st.expander("Preview Uploaded Data"):
+            st.dataframe(test_df.head())
+            
+        # Assuming the target column is named 'Target' (consistent with your training scripts)
+        target_col = 'Target' if 'Target' in test_df.columns else test_df.columns[-1]
+        
+        if target_col not in test_df.columns:
+            st.error(f"Could not find target column in dataset. Please ensure a column named 'Target' or label column exists.")
         else:
-            processed_input = input_df
+            X_test = test_df.drop(columns=[target_col])
+            y_test = test_df[target_col]
+            
+            # Load selected model artifacts
+config = model_options[selected_model_name]
+model, scaler = load_artifacts(config["model_path"], config["scaler_path"], config["needs_scaling"])
 
-        # Make Prediction
-        prediction = model.predict(processed_input)[0]
-        probabilities = model.predict_proba(processed_input)[0]
-        classes = model.classes_
+            if model is None:
+                st.error(f"Model artifact not found for {selected_model_name}. Please ensure model training scripts have been run and saved to the 'models/' directory.")
+            else:
+                # Preprocess features if required
+                if config["needs_scaling"] and scaler is not None:
+                    X_test_processed = scaler.transform(X_test)
+                else:
+                    X_test_processed = X_test
 
-        # Display Results
-        st.success(f"### Predicted Class / Category: **{prediction}**")
-        
-        # Display Probabilities breakdown
-        st.markdown("### Class Probability Breakdown:")
-        prob_df = pd.DataFrame({
-            'Class': classes,
-            'Probability': probabilities
-        }).sort_values(by='Probability', ascending=False)
-        
-        st.dataframe(prob_df.set_index('Class'), use_container_width=True)
-        st.bar_chart(prob_df.set_index('Class'))
+                # Predictions
+                y_pred = model.predict(X_test_processed)
+                
+                # Handle Probabilities / AUC score safely
+                y_prob = None
+                if hasattr(model, "predict_proba"):
+                    try:
+                        y_prob = model.predict_proba(X_test_processed)[:, 1]
+                    except Exception:
+                        pass
 
+                # --- 3. DISPLAY OF EVALUATION METRICS ---
+                st.markdown("---")
+                st.subheader(f"📈 Evaluation Metrics: {selected_model_name}")
+                
+                acc = accuracy_score(y_test, y_pred)
+                prec = precision_score(y_test, y_pred, zero_division=0)
+                rec = recall_score(y_test, y_pred, zero_division=0)
+                f1 = f1_score(y_test, y_pred, zero_division=0)
+                mcc = matthews_corrcoef(y_test, y_pred)
+                auc = roc_auc_score(y_test, y_prob) if y_prob is not None else "N/A (Not Available)"
+
+                col1, col2, col3 = st.columns(3)
+                col1.metric("Accuracy", f"{acc:.4f}")
+                col2.metric("Precision", f"{prec:.4f}")
+                col3.metric("Recall", f"{rec:.4f}")
+
+                col4, col5, col6 = st.columns(3)
+                col4.metric("F1 Score", f"{f1:.4f}")
+                col5.metric("MCC Score", f"{mcc:.4f}")
+                col6.metric("AUC Score", f"{auc:.4f}" if isinstance(auc, float) else auc)
+
+                # --- 4. CONFUSION MATRIX & CLASSIFICATION REPORT ---
+                st.markdown("---")
+                st.subheader("🔍 Detailed Classification Report & Confusion Matrix")
+                
+                tab1, tab2 = st.tabs(["Confusion Matrix", "Classification Report"])
+                
+                with tab1:
+                    fig, ax = plt.subplots(figsize=(6, 4))
+                    cm = confusion_matrix(y_test, y_pred)
+                    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False, ax=ax)
+                    ax.set_xlabel("Predicted Label")
+                    ax.set_ylabel("True Label")
+                    ax.set_title(f"Confusion Matrix - {selected_model_name}")
+                    st.pyplot(fig)
+                    
+                with tab2:
+                    report_dict = classification_report(y_test, y_pred, output_dict=True, zero_division=0)
+                    report_df = pd.DataFrame(report_dict).transpose()
+                    st.dataframe(report_df.style.format(precision=4))
+
+    except Exception as e:
+        st.error(f"An error occurred while processing the file: {e}")
+else:
+    st.info("👈 Please upload your test CSV file (`test_data.csv`) using the file uploader above to begin evaluation.")
