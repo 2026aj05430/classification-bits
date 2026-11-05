@@ -13,13 +13,13 @@ from sklearn.metrics import (
 
 # Page configuration
 st.set_page_config(
-    page_title="Classification Models Dashboard",
+    page_title="Classification Models Performance",
     page_icon="📊",
     layout="centered"
 )
 
-st.title("📊 Classification Model Evaluation Dashboard")
-st.write("Upload your test dataset, select a trained model, and evaluate performance instantly.")
+st.title("Classification Model Evaluation on UCI student dropout database")
+st.write("Upload the test dataset in github repo, select a trained model, and observe Evaluation metrics.")
 
 # --- 1. MODEL SELECTION DROPDOWN ---
 st.sidebar.header("Configuration")
