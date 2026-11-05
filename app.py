@@ -74,7 +74,7 @@ def load_artifacts(model_path, scaler_path, needs_scaling):
 
 if uploaded_file is not None:
     try:
-        test_df = pd.read_csv(uploaded_file)
+        test_df = pd.read_csv(uploaded_file , sep=';', encoding='utf-8')
         st.success(f"Successfully uploaded! Dataset shape: {test_df.shape}")
         
         with st.expander("Preview Uploaded Data"):
