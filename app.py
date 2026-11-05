@@ -29,25 +29,25 @@ model_options = {
         "scaler_path": "model/scaler.pkl",
         "needs_scaling": True
     },
-    "Support Vector Machine (SVM)": {
-        "model_path": "model/svm_model.pkl",
-        "scaler_path": "model/svm_scaler.pkl",
-        "needs_scaling": True
+    "Decision Tree": {
+        "model_path": "model/decision_tree_model.pkl",
+        "scaler_path": None,
+        "needs_scaling": False
     },
     "K-Nearest Neighbors (KNN)": {
         "model_path": "model/knn_model.pkl",
         "scaler_path": "model/knn_scaler.pkl",
         "needs_scaling": True
     },
-    "Decision Tree": {
-        "model_path": "model/decision_tree_model.pkl",
-        "scaler_path": None,
-        "needs_scaling": False
-    },
     "Gaussian Naive Bayes": {
         "model_path": "model/gaussian_nb_model.pkl",
         "scaler_path": None,
         "needs_scaling": False
+    },
+    "Support Vector Machine (SVM)": {
+        "model_path": "model/svm_model.pkl",
+        "scaler_path": "model/svm_scaler.pkl",
+        "needs_scaling": True
     }
 }
 
