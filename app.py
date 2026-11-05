@@ -107,7 +107,7 @@ if uploaded_file is not None:
                 y_prob = None
                 if hasattr(model, "predict_proba"):
                     try:
-                        y_prob = model.predict_proba(X_test_processed)[:, 1]
+                        y_prob = model.predict_proba(X_test_processed)
                     except Exception:
                         pass
 
