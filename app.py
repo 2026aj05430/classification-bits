@@ -27,27 +27,27 @@ st.write("Upload your test dataset, select a trained model, and evaluate perform
 st.sidebar.header("Configuration")
 model_options = {
     "Logistic Regression": {
-        "model_path": "models/logistic_regression_model.pkl",
-        "scaler_path": "models/scaler.pkl",
+        "model_path": "model/logistic_regression_model.pkl",
+        "scaler_path": "model/scaler.pkl",
         "needs_scaling": True
     },
     "Support Vector Machine (SVM)": {
-        "model_path": "models/svm_model.pkl",
-        "scaler_path": "models/svm_scaler.pkl",
+        "model_path": "model/svm_model.pkl",
+        "scaler_path": "model/svm_scaler.pkl",
         "needs_scaling": True
     },
     "K-Nearest Neighbors (KNN)": {
-        "model_path": "models/knn_model.pkl",
-        "scaler_path": "models/knn_scaler.pkl",
+        "model_path": "model/knn_model.pkl",
+        "scaler_path": "model/knn_scaler.pkl",
         "needs_scaling": True
     },
     "Decision Tree": {
-        "model_path": "models/decision_tree_model.pkl",
+        "model_path": "model/decision_tree_model.pkl",
         "scaler_path": None,
         "needs_scaling": False
     },
     "Gaussian Naive Bayes": {
-        "model_path": "models/gaussian_nb_model.pkl",
+        "model_path": "model/gaussian_nb_model.pkl",
         "scaler_path": None,
         "needs_scaling": False
     }
