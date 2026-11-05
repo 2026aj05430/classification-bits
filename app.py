@@ -87,9 +87,9 @@ if uploaded_file is not None:
             X_test = test_df.drop(columns=[target_col])
             y_test = test_df[target_col]
             
-            # Load selected model artifacts
-config = model_options[selected_model_name]
-model, scaler = load_artifacts(config["model_path"], config["scaler_path"], config["needs_scaling"])
+            # Load selected model configuration and artifacts
+            config = model_options[selected_model_name]
+            model, scaler = load_artifacts(config["model_path"], config["scaler_path"], config["needs_scaling"])
 
             if model is None:
                 st.error(f"Model artifact not found for {selected_model_name}. Please ensure model training scripts have been run and saved to the 'models/' directory.")
