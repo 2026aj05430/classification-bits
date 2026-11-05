@@ -3,8 +3,6 @@ import pandas as pd
 import numpy as np
 import joblib
 import os
-#import matplotlib
-#matplotlib.use('Agg') # Forces matplotlib to run in headless/non-GUI mode
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import (
@@ -122,7 +120,7 @@ if uploaded_file is not None:
                 rec = recall_score(y_test, y_pred, zero_division=0)
                 f1 = f1_score(y_test, y_pred, zero_division=0)
                 mcc = matthews_corrcoef(y_test, y_pred)
-                auc = roc_auc_score(y_test, y_prob) if y_prob is not None else "N/A (Not Available)"
+                auc_score = roc_auc_score(y_test, y_prob, multi_class='ovr', average='weighted')
 
                 col1, col2, col3 = st.columns(3)
                 col1.metric("Accuracy", f"{acc:.4f}")
@@ -132,7 +130,7 @@ if uploaded_file is not None:
                 col4, col5, col6 = st.columns(3)
                 col4.metric("F1 Score", f"{f1:.4f}")
                 col5.metric("MCC Score", f"{mcc:.4f}")
-                col6.metric("AUC Score", f"{auc:.4f}" if isinstance(auc, float) else auc)
+                col6.metric("AUC Score", f"{auc_score:.4f}" if isinstance(auc_score, float) else auc_score)
 
                 # --- 4. CONFUSION MATRIX & CLASSIFICATION REPORT ---
                 st.markdown("---")
