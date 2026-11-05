@@ -32,5 +32,5 @@ train_df, test_df = train_test_split(df, test_size=0.2, random_state=42)
 # 5. Save the split datasets
 train_df.to_csv('train_data.csv', sep=';', index=False)
 test_df.to_csv('test_data.csv', sep=';', index=False)
-
+print("Writing train_data.csv and test_data.csv with 80:20 split")
 print(f"Training set rows: {len(train_df)}, Testing set rows: {len(test_df)}")
