@@ -57,7 +57,7 @@ selected_model_name = st.sidebar.selectbox(
 )
 
 # --- 2. DATASET UPLOAD OPTION (CSV) ---
-st.subheader("📁 Upload Test Dataset")
+st.subheader("📁 Upload Test Dataset provided in github")
 uploaded_file = st.file_uploader(
     "Upload your test CSV file (e.g., test_data.csv)", 
     type=["csv"]
@@ -155,4 +155,4 @@ if uploaded_file is not None:
     except Exception as e:
         st.error(f"An error occurred while processing the file: {e}")
 else:
-    st.info("👈 Please upload your test CSV file (`test_data.csv`) using the file uploader above to begin evaluation.")
+    st.info("Please upload your test CSV file (`test_data.csv`) using the file uploader above to begin evaluation.")
